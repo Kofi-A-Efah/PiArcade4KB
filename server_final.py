@@ -32,7 +32,7 @@ maybe have punch be a confirm button?
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 #Bind the socket to the port
-server_address = ('10.48.41.129', 10000)
+server_address = ('10.48.56.59', 10000)
 print( "Starting up on " + server_address[0] + " port " + str(server_address[1]))
 sock.bind(server_address)
 
@@ -45,35 +45,36 @@ connection, client_address = sock.accept()
 buffer = []
 loop = True
 
-
-
 try:
     print("Connection!")
     #Forever loop that will not stop. It will Always check for inputs
     while loop:
 
-        buffer.append(connection.recv(4096))
-        
-        for i in range(len(buffer)):
-            #Every input taken is removed from the buffer  
-            #until the next time an input is streamed
-            data_dec = buffer.pop(0).decode()
-            print("Received " + data_dec + " Button")
 
-            if (data_dec == 'quit'):
+        buffer = connection.recv(4096)
+        buffer = buffer.decode('utf-8')
+
+        try:
+            buffer = eval(buffer)
+        except:
+            # On exception, try to reacquire new input from buffer
+            print("bad input is " + buffer)
+            break
+        # Loop through buffer, pressing the keys
+        for i in range(len(buffer)):
+
+            print("Received " + buffer[i] + " Button")
+
+            if (buffer[i] == 'quit'):
                 loop = False
 
-            if (data_dec.find('press',1) != -1):
-                data_dec = data_dec.replace("press","")
-                keyboard.press(data_dec)
+            if (buffer[i].find('press',1) != -1):
+                buffer[i] = buffer[i].replace("press","")
+                keyboard.press(buffer[i])
 
-            if (data_dec.find('release',1) != -1):
-                data_dec = data_dec.replace('release',"")
-                keyboard.release(data_dec)    
-
-
-
-
+            elif (buffer[i].find('release',1) != -1):
+                buffer[i] = buffer[i].replace('release',"")
+                keyboard.release(buffer[i])    
 
         else:
             print("No more data from client address, waiting for more...")
