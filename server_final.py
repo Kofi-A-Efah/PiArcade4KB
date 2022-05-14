@@ -50,7 +50,6 @@ try:
     #Forever loop that will not stop. It will Always check for inputs
     while loop:
 
-
         buffer = connection.recv(4096)
         buffer = buffer.decode('utf-8')
 
@@ -60,6 +59,7 @@ try:
             # On exception, try to reacquire new input from buffer
             print("bad input is " + buffer)
             break
+
         # Loop through buffer, pressing the keys
         for i in range(len(buffer)):
 

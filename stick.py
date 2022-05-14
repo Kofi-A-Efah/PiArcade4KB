@@ -3,14 +3,13 @@ import time
 import subprocess
 import os
 import pygame
+import socket
+import sys
 
-GPIO.setmode(GPIO.BCM)   # Set for broadcom numbering not board numbers...
-
-#GPIO stuff
-GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-
-
+from GUI import init_home, init_game_one, init_game_two
+"""
+Client Code
+"""
 
 ## Pygame Setup
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
@@ -36,7 +35,6 @@ center = (160, 220)
 border_width = 0
 
 #GUI Elements
-
 title_rect = (70,35,180,25)
 g1rect = (37,136,100,25)
 g2rect = (200,136,100,25)
@@ -48,19 +46,6 @@ home_screen = {'Pi Arcade Stick 4KB':(160,50), "Game 1":(80,150), "Game 2":(240,
 g_one = {'Pac-Man':(160,20),'Quit':(260,220),'Back':(60,220)}
 g_two = {'Guilty Gear +R':(160,20), 
 'P':(80,170), 'K':(120,170), 'S':(160,170), 'HS':(200,170), 'D':(240,170), 'Quit':(260,220),'Back':(60,220)}
- 
-
-
-# Loop Control
-global loop
-loop = True 
-stop = time.time() + 10
-
-#Game Select
-global level
-level = 0 # Home Screen
-#level = 1  Game 1
-#level = 2  Game 2
 
 #GUI OBJECTS
 up = pygame.image.load("up.png")
@@ -99,45 +84,33 @@ leftpressrect = leftpress.get_rect(center=(120,90))
 
 downrect = down.get_rect(center=(160,120))
 downpressrect = downpress.get_rect(center =(160,120))
-#
+
+#Game Select
+global level
+level = 0 # Home Screen, level = 1 - Game 1, level = 2  - Game 2
+game = "one" # Game = one for pacman controls, (Default) Game = two for guilty gear controls
+
+# Create a TCP/IP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connect the socket to the port where the server is listening
+server_address = ('10.48.76.166', 10000)
+print("Connecting to " + server_address[0] + " port " + str(server_address[1]) )
+sock.connect(server_address)
 
 
-def init_home():
-	screen.fill(black)
-	pygame.draw.rect(screen,blue,title_rect,1)
-	pygame.draw.rect(screen,blue,g1rect,1)
-	pygame.draw.rect(screen,blue,g2rect,1)
-	for my_text, text_pos in home_screen.items():
-		text_surface = my_font.render(my_text,True,WHITE)
-		rect = text_surface.get_rect(center=text_pos)
-		screen.blit(text_surface,rect)
+# Check if Log file exists, delete, and make a new one.
+if os.path.exists("Log.txt"):
+    os.remove("Log.txt")
 
-def init_game_one():
-	screen.fill(black)
-	screen.blit(up,uprect)
-	screen.blit(right,rightrect)
-	screen.blit(left,leftrect)
-	screen.blit(down,downrect)
-	for my_text, text_pos in g_one.items():
-		text_surface = my_font.render(my_text,True,WHITE)
-		rect = text_surface.get_rect(center=text_pos)
-		screen.blit(text_surface,rect)
-		
-def init_game_two():
-	screen.fill(black)
-	screen.blit(up,uprect)
-	screen.blit(right,rightrect)
-	screen.blit(left,leftrect)
-	screen.blit(down,downrect)
-	for my_text, text_pos in g_two.items():
-		text_surface = my_font.render(my_text,True,WHITE)
-		rect = text_surface.get_rect(center=text_pos)
-		screen.blit(text_surface,rect)
-		
-					
-		
-while (loop):# and stop >= time.time()):
-	
+file1 = open("/home/pi/PiArcade4KB/Log.txt","w")
+
+
+##TODO: Incorporate main loop code from  client_GPIO and GUI.py
+## Update GUI using the callbacks
+
+while(loop):
+
 	#Quit Logic
 	for event in pygame.event.get():
 		if ((event.type is pygame.MOUSEBUTTONDOWN)):
@@ -149,7 +122,7 @@ while (loop):# and stop >= time.time()):
 
 	#Check which screen to render
 	if (level == 0):
-		init_home()
+		init_home() # Home Screen
 		# Game Selection Logic
 		for event in pygame.event.get():
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):
@@ -158,38 +131,77 @@ while (loop):# and stop >= time.time()):
 				if (y > 120 and y < 180):
 					if (x > 50 and x < 110):
 						level = 1
+						game = "one"
 					elif (x > 210 and x < 270):
 						level = 2
-						
+						game = "two"
+
+		sock.sendall(game.encode()) ## Send game to server to remap controls
+
+
 	elif (level == 1):
 		init_game_one()
 		for event in pygame.event.get():
-			if ((event.type is pygame.MOUSEBUTTONDOWN)):pos = pygame.mouse.get_pos()
-			x,y = pos
-			if (y > 185 and y < 250):
-				if (x > 30 and x < 90):
-					level = 0
-				elif (x > 220 and x < 300):
-					loop = False
+			if ((event.type is pygame.MOUSEBUTTONDOWN)):
+                pos = pygame.mouse.get_pos()
+                x,y = pos
+                if (y > 185 and y < 250):
+                    if (x > 30 and x < 90):
+                        level = 0
+                    elif (x > 220 and x < 300):
+                        loop = False
 					# Render Buttons and Swap between images depending on GPIO			
 					
+
 	elif (level == 2):
 		init_game_two()
-		if (not GPIO.input(27)):
+		if (not GPIO.input(20)):
 			screen.blit(uppress,uppressrect)
 		else:
 			screen.blit(up,uprect)
 
 		for event in pygame.event.get():
-			if ((event.type is pygame.MOUSEBUTTONDOWN)):pos = pygame.mouse.get_pos()
-			x,y = pos
-			if (y > 185 and y < 250):
-				if (x > 30 and x < 90):
-					level = 0
-				elif (x > 220 and x < 300):
-					loop = False
+			if ((event.type is pygame.MOUSEBUTTONDOWN)):
+                pos = pygame.mouse.get_pos()
+                x,y = pos
+                if (y > 185 and y < 250):
+                    if (x > 30 and x < 90):
+                        level = 0
+                    elif (x > 220 and x < 300):
+                        loop = False
 					
 					#Render Buttons and and Swap between images depending on GPIO
 
+
 	pygame.display.flip()
 
+    #Communication Stuff
+    try:
+      time.sleep(0.075)
+
+      if ( not GPIO.input(17) ):
+          loop = False
+          message.append('quit')
+
+      if len(message) >= 2:
+          button = str(message)
+          message.clear()
+          file1.write(button + " " + "\n")
+          sock.sendall(button.encode())
+          print("Sent " + str(button) + " " +" to the computer")
+
+      elif len(message) > 0:
+          button = str(message)
+          message.clear()
+          file1.write(button + " " + "\n")
+          sock.sendall(button.encode())
+          print("Sent " + str(button) + " " +" to the computer")
+          
+    except:
+        file1.close()
+
+file1.close()
+sock.close()
+
+
+## Fix the remaining issue with TCP code
