@@ -10,7 +10,7 @@ message = [] # buffer of inputs
 #prev_press_w = False
 #prev_press_a = False
 global pressdict
-pressdict = {'dpress':False,'spress':False,'apress':False}
+pressdict = {'press':False,'spress':False,'apress':False}
 
 def GPIO27_callback(channel):
     global prev_press
@@ -49,3 +49,4 @@ GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.add_event_detect(27,GPIO.BOTH, callback=GPIO27_callback, bouncetime=1)
 GPIO.add_event_detect(23,GPIO.BOTH, callback=GPIO23_callback, bouncetime=1)
 GPIO.add_event_detect(22,GPIO.BOTH, callback=GPIO22_callback, bouncetime=1)
+## Add rest of callbacks as circuit is repaired
