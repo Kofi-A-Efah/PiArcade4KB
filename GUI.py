@@ -14,7 +14,7 @@ GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 ## Pygame Setup
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
-os.putenv('SDL_FBDEV', '/dev/fb1')
+os.putenv('SDL_FBDEV', '/dev/fb0')
 os.putenv('SDL_MOUSEDRV', 'TSLIB')
 os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
 
@@ -29,8 +29,9 @@ blue = (0,0,255)
 black = 0,0,0
 WHITE = 255,255,255
 screen = pygame.display.set_mode(size)  
-screen.fill(black)  # Erase the Work space 
+screen.fill(black)  # Erase the Work space
 pygame.display.flip()
+
 my_font = pygame.font.Font(None,25)
 center = (160, 220)
 border_width = 0
@@ -143,8 +144,8 @@ while (loop):# and stop >= time.time()):
 		if ((event.type is pygame.MOUSEBUTTONDOWN)):
 			pos = pygame.mouse.get_pos()
 			x,y = pos
-			if (y > 185 and y < 250):
-				if (x > 220 and x < 300):
+			if (y < 30):
+				if (x < 80):
 					loop = False
 
 	#Check which screen to render
@@ -155,10 +156,10 @@ while (loop):# and stop >= time.time()):
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):
 				pos = pygame.mouse.get_pos()
 				x,y = pos
-				if (y > 120 and y < 180):
-					if (x > 50 and x < 110):
+				if (y > 40 and y < 100):
+					if (x > 170 and x < 300):
 						level = 1
-					elif (x > 210 and x < 270):
+					elif (x < 120):
 						level = 2
 						
 	elif (level == 1):
@@ -166,10 +167,10 @@ while (loop):# and stop >= time.time()):
 		for event in pygame.event.get():
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):pos = pygame.mouse.get_pos()
 			x,y = pos
-			if (y > 185 and y < 250):
-				if (x > 30 and x < 90):
+			if (y < 30):
+				if (x > 230):
 					level = 0
-				elif (x > 220 and x < 300):
+				elif (x < 80):
 					loop = False
 					# Render Buttons and Swap between images depending on GPIO			
 					
@@ -183,13 +184,14 @@ while (loop):# and stop >= time.time()):
 		for event in pygame.event.get():
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):pos = pygame.mouse.get_pos()
 			x,y = pos
-			if (y > 185 and y < 250):
-				if (x > 30 and x < 90):
+			if (y < 30):
+				if (x > 170):
 					level = 0
-				elif (x > 220 and x < 300):
+				elif (x < 80):
 					loop = False
 					
 					#Render Buttons and and Swap between images depending on GPIO
-
+	
+	screen.blit(pygame.transform.rotate(screen,-180), (0,0))
 	pygame.display.flip()
 

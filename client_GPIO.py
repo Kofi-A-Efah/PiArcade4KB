@@ -64,7 +64,7 @@ loop = True
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Connect the socket to the port where the server is listening
-server_address = ('10.48.76.166', 10000)
+server_address = ('10.48.47.103', 10000)
 print("Connecting to " + server_address[0] + " port " + str(server_address[1]) )
 sock.connect(server_address)
 
@@ -78,7 +78,7 @@ while(loop):
     try:
       time.sleep(0.075)
 
-      if ( not GPIO.input(17) ):
+      if ( not GPIO.input(23) ):
           loop = False
           message.append('quit')
 
