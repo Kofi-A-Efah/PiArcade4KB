@@ -7,10 +7,17 @@ import pygame
 GPIO.setmode(GPIO.BCM)   # Set for broadcom numbering not board numbers...
 
 #GPIO stuff
+GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-
-
+GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 ## Pygame Setup
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
@@ -62,6 +69,14 @@ global level
 level = 0 # Home Screen
 #level = 1  Game 1
 #level = 2  Game 2
+
+#Circle Attributes	
+red = (255,0,0)
+green = (0,255,0)
+circle_radius = 10
+border_width = 0
+circle_center = [79, 168]
+
 
 #GUI OBJECTS
 up = pygame.image.load("up.png")
@@ -130,12 +145,58 @@ def init_game_two():
 	screen.blit(right,rightrect)
 	screen.blit(left,leftrect)
 	screen.blit(down,downrect)
+	pygame.draw.circle(screen,red,circle_center,circle_radius,border_width)
+	pygame.draw.circle(screen,red,(circle_center[0]+40,circle_center[1]),circle_radius,border_width)
+	pygame.draw.circle(screen,red,(circle_center[0]+80,circle_center[1]),circle_radius,border_width)
+	pygame.draw.circle(screen,red,(circle_center[0]+120,circle_center[1]),circle_radius+5,border_width)
+	pygame.draw.circle(screen,red,(circle_center[0]+160,circle_center[1]),circle_radius,border_width)
+	if (not GPIO.input(17)):
+		pygame.draw.circle(screen,green,circle_center,circle_radius,border_width)
+
+	if (not GPIO.input(27)):
+		pygame.draw.circle(screen,green,(circle_center[0]+40,circle_center[1]),circle_radius,border_width)
+
+
+	if (not GPIO.input(26)):
+		pygame.draw.circle(screen,green,(circle_center[0]+80,circle_center[1]),circle_radius,border_width)
+
+
+	if (not GPIO.input(22)):
+		pygame.draw.circle(screen,green,(circle_center[0]+120,circle_center[1]),circle_radius+5,border_width)
+
+
+	if (not GPIO.input(13)):
+		pygame.draw.circle(screen,green,(circle_center[0]+160,circle_center[1]),circle_radius,border_width)
+
+	#if (not GPIO.input(19)):
+	#	pygame.draw.circle(screen,green,(circle_center[0]+40,circle_center[1]),circle_radius,border_width)
+
+
 	for my_text, text_pos in g_two.items():
 		text_surface = my_font.render(my_text,True,WHITE)
 		rect = text_surface.get_rect(center=text_pos)
 		screen.blit(text_surface,rect)
-		
-					
+
+def image_update():
+	if (not GPIO.input(12)):
+		screen.blit(leftpress,leftpressrect)
+	else:
+		screen.blit(left,leftrect)
+
+	if (not GPIO.input(16)):
+		screen.blit(rightpress,rightpressrect)
+	else:
+		screen.blit(right,rightrect)
+
+	if (not GPIO.input(20)):
+		screen.blit(uppress,uppressrect)
+	else:
+		screen.blit(up,uprect)
+
+	if (not GPIO.input(21)):
+		screen.blit(downpress,downpressrect)
+	else:
+		screen.blit(down,downrect)
 		
 while (loop):# and stop >= time.time()):
 	
@@ -164,6 +225,7 @@ while (loop):# and stop >= time.time()):
 						
 	elif (level == 1):
 		init_game_one()
+		image_update()
 		for event in pygame.event.get():
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):pos = pygame.mouse.get_pos()
 			x,y = pos
@@ -176,11 +238,7 @@ while (loop):# and stop >= time.time()):
 					
 	elif (level == 2):
 		init_game_two()
-		if (not GPIO.input(27)):
-			screen.blit(uppress,uppressrect)
-		else:
-			screen.blit(up,uprect)
-
+		image_update()
 		for event in pygame.event.get():
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):pos = pygame.mouse.get_pos()
 			x,y = pos

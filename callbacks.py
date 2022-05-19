@@ -10,37 +10,62 @@ pressdict = {'uppress':False,'downpress':False,'leftpress':False,
 
 #JOYSTICK CALLBACKS
 def GPIO12_callback(channel):
-    if ( ( pressdict['leftpress'] is False ) ):
+    if ( (  GPIO.input(12) and pressdict['leftpress'] is False ) ):
         message.append('leftpress')
         pressdict['leftpress'] = True #
-    else:
+
+    elif ( GPIO.input(12) and pressdict['leftpress'] is True):
         message.append('leftrelease')
-        pressdict['leftpress'] = False
+        pressdict['leftpress'] = False #
+
+    #elif ( not GPIO.input(12) and pressdict['leftpress'] is False):
+    #    message.append('leftpress')
+    #    pressdict['leftpress'] = True #
+
+    #elif ( not GPIO.input(12) and pressdict['leftpress'] is True):
+    #    message.append('leftrelease')
+    #    pressdict['leftpress'] = False #
+
 
 def GPIO16_callback(channel):
-    if (  ( pressdict['rightpress'] is False ) ):
+    if (  (  GPIO.input(16) and pressdict['rightpress'] is False ) ):
         message.append('rightpress')
         pressdict['rightpress'] = True #
-    else:
+
+    elif ( GPIO.input(16) and pressdict['rightpress'] is True):
         message.append('rightrelease')
-        pressdict['rightpress'] = False
+        pressdict['rightpress'] = False #
+
+    #else:
+    #    message.append('rightrelease')
+    #    pressdict['rightpress'] = False
 
 
 def GPIO20_callback(channel):
-    if ( ( pressdict['uppress'] is False ) ):
+    if ( (  GPIO.input(20) and pressdict['uppress'] is False ) ):
         message.append('uppress')
         pressdict['uppress'] = True #
-    else:
+
+    elif ( GPIO.input(20) and pressdict['uppress'] is True):
         message.append('uprelease')
-        pressdict['uppress'] = False 
+        pressdict['uppress'] = False #
+
+    #else:
+    #    message.append('uprelease')
+    #    pressdict['uppress'] = False
 
 def GPIO21_callback(channel):
-    if ( ( pressdict['downpress'] is False ) ):
+    if ( (  GPIO.input(21) and pressdict['downpress'] is False ) ):
         message.append('downpress')
         pressdict['downpress'] = True #
-    else:
+        
+    elif ( GPIO.input(21) and pressdict['downpress'] is True):
         message.append('downrelease')
-        pressdict['downpress'] = False         
+        pressdict['downpress'] = False #
+
+    #else:
+    #    message.append('downrelease')
+    #    pressdict['downpress'] = False       
 
 
 # ARCADE BUTTON CALLBACK
@@ -118,10 +143,10 @@ GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP) # quit
 
 # JOYSTICK
-GPIO.add_event_detect(12,GPIO.BOTH, callback=GPIO12_callback, bouncetime=20)  #LEFT
-GPIO.add_event_detect(16,GPIO.BOTH, callback=GPIO16_callback, bouncetime=20)  #RIGHT
-GPIO.add_event_detect(20,GPIO.BOTH, callback=GPIO20_callback, bouncetime=20)  #UP
-GPIO.add_event_detect(21,GPIO.BOTH, callback=GPIO21_callback, bouncetime=20)  #DOWN
+GPIO.add_event_detect(12,GPIO.RISING, callback=GPIO12_callback, bouncetime=20)  #LEFT
+GPIO.add_event_detect(16,GPIO.RISING, callback=GPIO16_callback, bouncetime=20)  #RIGHT
+GPIO.add_event_detect(20,GPIO.RISING, callback=GPIO20_callback, bouncetime=20)  #UP
+GPIO.add_event_detect(21,GPIO.RISING, callback=GPIO21_callback, bouncetime=20)  #DOWN
 # ARCADE BUTTONS
 GPIO.add_event_detect(17,GPIO.BOTH, callback=GPIO17_callback, bouncetime=20) # A - u
 GPIO.add_event_detect(27,GPIO.BOTH, callback=GPIO27_callback, bouncetime=20) # X - j

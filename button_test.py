@@ -5,7 +5,7 @@ GPIO.setmode(GPIO.BCM)
 global loop
 loop = True
 def GPIO12_callback(channel):
-    print(GPIO.input(12))
+#    print(GPIO.input(12))
     if not GPIO.input(12):
         print("Press")
     else:
@@ -61,10 +61,10 @@ GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # JOYSTICK
-GPIO.add_event_detect(12,GPIO.BOTH, callback=GPIO12_callback, bouncetime=20)
-GPIO.add_event_detect(16,GPIO.BOTH, callback=GPIO16_callback, bouncetime=20)
-GPIO.add_event_detect(20,GPIO.BOTH, callback=GPIO20_callback, bouncetime=20)
-GPIO.add_event_detect(21,GPIO.BOTH, callback=GPIO21_callback, bouncetime=20)
+#GPIO.add_event_detect(12,GPIO.BOTH, callback=GPIO12_callback, bouncetime=20)
+#GPIO.add_event_detect(16,GPIO.BOTH, callback=GPIO16_callback, bouncetime=20)
+#GPIO.add_event_detect(20,GPIO.BOTH, callback=GPIO20_callback, bouncetime=20)
+#GPIO.add_event_detect(21,GPIO.BOTH, callback=GPIO21_callback, bouncetime=20)
 # ARCADE BUTTONS
 GPIO.add_event_detect(17,GPIO.BOTH, callback=GPIO17_callback, bouncetime=1)
 GPIO.add_event_detect(27,GPIO.BOTH, callback=GPIO27_callback, bouncetime=1)
@@ -75,6 +75,19 @@ GPIO.add_event_detect(19,GPIO.BOTH, callback=GPIO19_callback, bouncetime=1)
 
 
 while(loop):
-    time.sleep(0.2)
+    time.sleep(0.02)
+    if (not GPIO.input(12)):
+        print("lpressed")
+        print (GPIO.input(12))
+    if (not GPIO.input(16)):
+        print("rpressed")
+        print (GPIO.input(20))
+    if (not GPIO.input(20)):
+        print("upressed")
+        print (GPIO.input(20))
+    if (not GPIO.input(21)):
+        print("dpressed")
+        print (GPIO.input(21))
+
 
 GPIO.cleanup()
