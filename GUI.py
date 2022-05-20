@@ -7,6 +7,8 @@ import pygame
 GPIO.setmode(GPIO.BCM)   # Set for broadcom numbering not board numbers...
 
 #GPIO stuff
+#GPIO detection in this program will be by level high/low instead of edge triggered 
+#This is to account for button holds
 GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -67,9 +69,10 @@ stop = time.time() + 10
 
 #Game Select
 global level
-level = 0 # Home Screen
-#level = 1  Game 1
-#level = 2  Game 2
+# Level = 0 - Home Screen
+# Level = 1 - Game 1
+# Level = 2 - Game 2
+level = 0 
 
 #Circle Attributes	
 red = (255,0,0)
@@ -80,6 +83,7 @@ circle_center = [79, 168]
 
 
 #GUI OBJECTS
+#Images were too large so they have been rescaled
 up = pygame.image.load("up.png")
 up = pygame.transform.scale(up,(50,40))
 
@@ -118,7 +122,9 @@ downrect = down.get_rect(center=(160,120))
 downpressrect = downpress.get_rect(center =(160,120))
 #
 
-
+"""
+Home Screen
+"""
 def init_home():
 	screen.fill(black)
 	pygame.draw.rect(screen,blue,title_rect,1)
@@ -128,7 +134,9 @@ def init_home():
 		text_surface = my_font.render(my_text,True,WHITE)
 		rect = text_surface.get_rect(center=text_pos)
 		screen.blit(text_surface,rect)
-
+"""
+Game 1 Screen
+"""
 def init_game_one():
 	screen.fill(black)
 	screen.blit(up,uprect)
@@ -140,17 +148,24 @@ def init_game_one():
 		rect = text_surface.get_rect(center=text_pos)
 		screen.blit(text_surface,rect)
 		
+"""
+Game 2 Screen
+"""
 def init_game_two():
 	screen.fill(black)
+	# Draw Arrows
 	screen.blit(up,uprect)
 	screen.blit(right,rightrect)
 	screen.blit(left,leftrect)
 	screen.blit(down,downrect)
+	#Draw Red circle on the background of all the buttons equally spaced 
 	pygame.draw.circle(screen,red,circle_center,circle_radius,border_width)
 	pygame.draw.circle(screen,red,(circle_center[0]+40,circle_center[1]),circle_radius,border_width)
 	pygame.draw.circle(screen,red,(circle_center[0]+80,circle_center[1]),circle_radius,border_width)
 	pygame.draw.circle(screen,red,(circle_center[0]+120,circle_center[1]),circle_radius+5,border_width)
 	pygame.draw.circle(screen,red,(circle_center[0]+160,circle_center[1]),circle_radius,border_width)
+	
+	# Replace Red circle with Green circle depending on what buttons are pressed 
 	if (not GPIO.input(17)):
 		pygame.draw.circle(screen,green,circle_center,circle_radius,border_width)
 
@@ -172,15 +187,18 @@ def init_game_two():
 	if (not GPIO.input(22)):
 		pygame.draw.circle(screen,green,(circle_center[0]+40,circle_center[1]),circle_radius,border_width) 
 		pygame.draw.circle(screen,green,(circle_center[0]+160,circle_center[1]),circle_radius,border_width)
-
-
+		
+	#Render text on screen
 	for my_text, text_pos in g_two.items():
 		text_surface = my_font.render(my_text,True,WHITE)
 		rect = text_surface.get_rect(center=text_pos)
 		screen.blit(text_surface,rect)
-
+"""
+Update the arrows drawn on the screen
+"""
 def image_update():
-	if (not GPIO.input(12)):
+	# Blit either a green arrow or blank one depending on if the button is pressed/held or not
+	if (not GPIO.input(12)): 
 		screen.blit(leftpress,leftpressrect)
 	else:
 		screen.blit(left,leftrect)
@@ -200,26 +218,33 @@ def image_update():
 	else:
 		screen.blit(down,downrect)
 		
+"""
+Main Loop
+"""
 while (loop):# and stop >= time.time()):
 	
 	#Quit Logic
 	for event in pygame.event.get():
+		#Detecting touch on the PiTFT
 		if ((event.type is pygame.MOUSEBUTTONDOWN)):
 			pos = pygame.mouse.get_pos()
 			x,y = pos
 			if (y < 30):
 				if (x < 80):
 					loop = False
-
+					
+	#Hardware Quit 
 	if (not GPIO.input(23)):
 		loop = False
 
 
 	#Check which screen to render
+	#Generate Home Screen Elements
 	if (level == 0):
 		init_home()
 		# Game Selection Logic
 		for event in pygame.event.get():
+			#Detecting touch on the PiTFT
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):
 				pos = pygame.mouse.get_pos()
 				x,y = pos
@@ -228,11 +253,12 @@ while (loop):# and stop >= time.time()):
 						level = 1
 					elif (x < 140):
 						level = 2
-						
+	#Generate Level 1 Elements					
 	elif (level == 1):
 		init_game_one()
 		image_update()
 		for event in pygame.event.get():
+			#Detecting touch on the PiTFT
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):pos = pygame.mouse.get_pos()
 			x,y = pos
 			if (y < 30):
@@ -240,11 +266,13 @@ while (loop):# and stop >= time.time()):
 					level = 0
 				elif (x < 80):
 					loop = False
-					# Render Buttons and Swap between images depending on GPIO			
 					
+	# Render Buttons and Swap between images depending on GPIO			
+	# Generate level 2 elements				
 	elif (level == 2):
 		init_game_two()
 		image_update()
+		
 		for event in pygame.event.get():
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):pos = pygame.mouse.get_pos()
 			x,y = pos
@@ -256,6 +284,8 @@ while (loop):# and stop >= time.time()):
 					
 					#Render Buttons and and Swap between images depending on GPIO
 	
+	#PiTFT on our side is upside down so we rotated the screen 
 	screen.blit(pygame.transform.rotate(screen,-180), (0,0))
+	#Update the Screen
 	pygame.display.flip()
 
