@@ -34,7 +34,7 @@ while(loop):
     try:
       time.sleep(0.025)
 
-      if ( not GPIO.input(23) ):
+      if ( not GPIO.input(23) and GPIO.input(27) ):
           loop = False
           message.append('quit')
 

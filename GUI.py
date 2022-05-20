@@ -18,6 +18,7 @@ GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 ## Pygame Setup
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
@@ -154,22 +155,23 @@ def init_game_two():
 		pygame.draw.circle(screen,green,circle_center,circle_radius,border_width)
 
 	if (not GPIO.input(27)):
-		pygame.draw.circle(screen,green,(circle_center[0]+40,circle_center[1]),circle_radius,border_width)
+		pygame.draw.circle(screen,green,(circle_center[0]+40,circle_center[1]),circle_radius,border_width) # P
 
 
 	if (not GPIO.input(26)):
 		pygame.draw.circle(screen,green,(circle_center[0]+80,circle_center[1]),circle_radius,border_width)
 
 
-	if (not GPIO.input(22)):
+	if (not GPIO.input(19)):
 		pygame.draw.circle(screen,green,(circle_center[0]+120,circle_center[1]),circle_radius+5,border_width)
 
 
 	if (not GPIO.input(13)):
-		pygame.draw.circle(screen,green,(circle_center[0]+160,circle_center[1]),circle_radius,border_width)
+		pygame.draw.circle(screen,green,(circle_center[0]+160,circle_center[1]),circle_radius,border_width) # D
 
-	#if (not GPIO.input(19)):
-	#	pygame.draw.circle(screen,green,(circle_center[0]+40,circle_center[1]),circle_radius,border_width)
+	if (not GPIO.input(22)):
+		pygame.draw.circle(screen,green,(circle_center[0]+40,circle_center[1]),circle_radius,border_width) 
+		pygame.draw.circle(screen,green,(circle_center[0]+160,circle_center[1]),circle_radius,border_width)
 
 
 	for my_text, text_pos in g_two.items():
@@ -209,6 +211,10 @@ while (loop):# and stop >= time.time()):
 				if (x < 80):
 					loop = False
 
+	if (not GPIO.input(23)):
+		loop = False
+
+
 	#Check which screen to render
 	if (level == 0):
 		init_home()
@@ -217,10 +223,10 @@ while (loop):# and stop >= time.time()):
 			if ((event.type is pygame.MOUSEBUTTONDOWN)):
 				pos = pygame.mouse.get_pos()
 				x,y = pos
-				if (y > 40 and y < 100):
+				if (y > 40 and y < 140):
 					if (x > 170 and x < 300):
 						level = 1
-					elif (x < 120):
+					elif (x < 140):
 						level = 2
 						
 	elif (level == 1):

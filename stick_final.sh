@@ -1,7 +1,5 @@
 #!/bin/sh
-export SDL_VIDEODRIVER='fbcon'
-export SDL_MOUSEDEV='/dev/fb0'
-export SDL_FBDEV='TSLIB'
-export SDL_MOUSEDRV='/dev/input/touchscreen'
 
-sudo python3 stick.py
+sudo python3 GUI.py &
+sudo python3 client_GPIO.py
+
