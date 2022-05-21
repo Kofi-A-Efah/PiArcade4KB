@@ -16,7 +16,7 @@ Contains callbacks for all GPIO used. This submodule exists to modularize our co
 """
 
 #JOYSTICK CALLBACKS
-# Callbacks will check the current state of the button pressed and wi
+# Callbacks will check the current state of the button pressed and will update the state accordingly
 def GPIO12_callback(channel): # Left
     if ( (  GPIO.input(12) and pressdict['leftpress'] is False ) ): 
         message.append('leftpress')
